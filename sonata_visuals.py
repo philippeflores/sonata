@@ -243,6 +243,12 @@ def plot_blind_estimated_ellipses(t,y,M_hat,q_hat, color_th = "#1f77b4", color_e
     R = np.shape(q_hat)[0]
     N = np.shape(M_hat)[0]
     
+    mod_r = np.zeros(R)
+    for r in range(R):
+        mod_r[r] = -np.mean(abs(rdot(M_hat[:,r],q_hat[r]))**2)
+    
+    perm_mod = np.argsort(mod_r)
+    
     y_1, y_2 = quaternion_to_complex(y)
     
     y_hat = rdot(M_hat,q_hat)
@@ -268,17 +274,18 @@ def plot_blind_estimated_ellipses(t,y,M_hat,q_hat, color_th = "#1f77b4", color_e
     ax_v_r = {}
     ax_uv_r = {}
     
-    for r in range(R):
+    for ind_r in range(R):
+        r = perm_mod[ind_r]
         
         y_1_r_hat, y_2_r_hat = quaternion_to_complex(rdot(M_hat[:,r],q_hat[r]))
         
-        ax_u_r[r] = plt.subplot(gs[2+2*r,2:])
+        ax_u_r[ind_r] = plt.subplot(gs[2+2*ind_r,2:])
         plt.plot(t,y_1_r_hat.real, color = color_estimated)
         
-        ax_v_r[r] = plt.subplot(gs[2+2*r+1,2:])
+        ax_v_r[ind_r] = plt.subplot(gs[2+2*ind_r+1,2:])
         plt.plot(t,y_2_r_hat.real, color = color_estimated)
         
-        ax_uv_r[r] = plt.subplot(gs[(2+2*r):(2+2*r+2),:2])
+        ax_uv_r[ind_r] = plt.subplot(gs[(2+2*ind_r):(2+2*ind_r+2),:2])
         plt.plot(y_1_r_hat.real,y_2_r_hat.real, color = color_estimated)
     
     val_lim = np.max(np.abs(ax_u.get_ylim()+ax_v.get_ylim()))
