@@ -16,7 +16,7 @@ Code has been tested for Python 3.9.16. Several packages are required:
 
 ## Overview
 
-This repository contains several Python notebooks to generate damped ellipse mixture, and reconstruct them using the SONATA procedure presented in the paper. 
+This repository contains several Python notebooks to generate damped ellipse mixture, and reconstruct them using the SONATA procedure presented in the paper.
 
 - **main_example** contains a routine example showing the whole pipeline of SONATA.
 - **main_ringdown** contains an application of SONATA to ringdown gravitational wave data analysis.
