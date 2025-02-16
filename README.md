@@ -1,2 +1,1 @@
-# sonata
-SONATA: damped ellipSe decOmpositioN for bivAriaTe signAls
+# SONATA: damped ellipSe decOmpositioN for bivAriaTe signAls
