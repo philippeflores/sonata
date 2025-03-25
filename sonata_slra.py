@@ -3,6 +3,7 @@ import quaternion as qt
 import scipy
 import scipy.sparse
 import scipy.sparse.linalg
+import bispy as bsp
 
 from sonata_base import *
 
@@ -50,14 +51,25 @@ def hankel_to_signal(hankel_matrix):
 def sonata(y,R, L=-1, M_0=[], number_outer_iterations = 200, number_inner_iterations = 5, tolerance_outer = 1e-6, tolerance_inner = 1e-4):
     N = np.shape(y)[0]
     
-    if np.shape(M_0)[0]==0:
-        M_0 = np.zeros([N,R], dtype = complex)
-        for r in range(R):
-            for n in range(N):
-                M_0[:,r] = (np.exp(-np.random.rand())*np.exp(2*np.pi*np.random.rand()*1j))**np.arange(N)
-
     if L<0:
         L = int(np.floor(N/2))
+        
+    if np.shape(M_0)[0]==0:
+        H = signal_to_hankel(y,L)
+
+        U,D,Vh = SVDH(H,R = R)
+
+        M_0 = np.zeros([N,R],dtype = complex)
+
+        for r in range(R):
+            y_r = hankel_to_signal(D[r]*ldot(np.reshape(U[:,r],[-1,1]),np.reshape(Vh[r,:],[1,-1])))
+            a, theta, chi, phi = bsp.utils.quat2euler(y_r)
+            
+            phi_0 = phi[0]
+            a_0 = a[0]
+            
+            M_0[:,r] = a*np.exp((phi-phi_0)*1j)/a_0
+
         
     M_hat = np.array(M_0)
     q_hat = np.zeros(R,dtype = qt.quaternion)
