@@ -32,7 +32,7 @@ def quaternion_to_complex(q, splitting="symp"):
 
     q = np.array(q)
 
-    if splitting.lower() == "symp".lower():
+    if splitting.lower() == "symp":
         if q.dtype == "quaternion":
             array_q = qt.as_float_array(q)
             z_1 = array_q[..., 0] + array_q[..., 2] * 1j
@@ -41,7 +41,7 @@ def quaternion_to_complex(q, splitting="symp"):
             z_1 = q
             z_2 = np.zeros_like(z_1)
 
-    elif splitting.lower() == "cd".lower():
+    elif splitting.lower() == "cd":
         if q.dtype == "quaternion":
             array_q = qt.as_float_array(q)
             z_1 = array_q[..., 0] + array_q[..., 1] * 1j
@@ -95,13 +95,13 @@ def complex_to_quaternion(z_1, z_2, splitting="symp"):
     array_dimension.append(4)
     array_q = np.zeros(tuple(array_dimension))
 
-    if splitting.lower() == "symp".lower():
+    if splitting.lower() == "symp":
         array_q[..., 0] = np.real(z_1)
         array_q[..., 1] = np.real(z_2)
         array_q[..., 2] = np.imag(z_1)
         array_q[..., 3] = np.imag(z_2)
 
-    elif splitting.lower() == "cd".lower():
+    elif splitting.lower() == "cd":
         array_q[..., 0] = np.real(z_1)
         array_q[..., 1] = np.imag(z_1)
         array_q[..., 2] = np.real(z_2)
@@ -164,13 +164,13 @@ def quaternion_to_adjoint(Q, splitting="symp"):
 
     Z_1, Z_2 = quaternion_to_complex(Q, splitting=splitting)
 
-    if splitting.lower() == "symp".lower():
+    if splitting.lower() == "symp":
         chi_Q[:NUMBER_ROWS, :NUMBER_COLUMNS] = Z_1
         chi_Q[:NUMBER_ROWS, NUMBER_COLUMNS:] = -np.conjugate(Z_2)
         chi_Q[NUMBER_ROWS:, :NUMBER_COLUMNS] = Z_2
         chi_Q[NUMBER_ROWS:, NUMBER_COLUMNS:] = np.conjugate(Z_1)
 
-    elif splitting.lower() == "cd".lower():
+    elif splitting.lower() == "cd":
         chi_Q[:NUMBER_ROWS, :NUMBER_COLUMNS] = Z_1
         chi_Q[:NUMBER_ROWS, NUMBER_COLUMNS:] = Z_2
         chi_Q[NUMBER_ROWS:, :NUMBER_COLUMNS] = -np.conjugate(Z_2)
@@ -209,11 +209,11 @@ def adjoint_to_quaternion(chi_Q, splitting="symp"):
     NUMBER_ROWS = int(array_dimension[0] / 2)
     NUMBER_COLUMNS = int(array_dimension[1] / 2)
 
-    if splitting.lower() == "symp".lower():
+    if splitting.lower() == "symp":
         Z_1 = chi_Q[:NUMBER_ROWS, :NUMBER_COLUMNS]
         Z_2 = chi_Q[NUMBER_ROWS:, :NUMBER_COLUMNS]
 
-    elif splitting.lower() == "cd".lower():
+    elif splitting.lower() == "cd":
         Z_1 = chi_Q[:NUMBER_ROWS, :NUMBER_COLUMNS]
         Z_2 = chi_Q[:NUMBER_ROWS, NUMBER_COLUMNS:]
 
@@ -283,3 +283,7 @@ def rdot(A, B, splitting="symp"):
     """
 
     return np.transpose(ldot(np.transpose(B), np.transpose(A), splitting=splitting))
+
+def round(q):
+    q1, q2 = quaternion_to_complex(q)
+    return complex_to_quaternion(np.round(q1),np.round(q2))
