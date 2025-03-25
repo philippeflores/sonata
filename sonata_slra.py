@@ -111,3 +111,61 @@ def sonata(y,R, L=-1, M_0=[], number_outer_iterations = 200, number_inner_iterat
         
     return M_hat, q_hat, flag_outer
     
+
+def quaternion_matrix_rank(X):
+    chiX = quaternion_to_adjoint(X)
+    rk = np.linalg.matrix_rank(chiX)
+    return int(rk/2)
+
+def SVDH(A, R = -1,splitting = "symp"):
+    '''
+    Function that computes the SVD of a quaternion 
+    matrix A = A_1 + A_2 j
+    
+    input: A_1 and A_2, complex matrices of size NxM
+    
+    output: 
+    U1,U2: two complex matrices of left singular vectors forming the quaternion matrix 
+    U = U1 + U2 j
+    Vh1,Vh2: two complex matrices of right singular vectors forming the quaternion matrix 
+    Vh = Vh1 + Vh2 j
+    D: real singular values (dimension = min(N,M))
+    '''
+    if R<0:
+        R = quaternion_matrix_rank(A)
+    
+    N, M = np.shape(A)
+    
+    #forming the complex representation
+    ChiA = quaternion_to_adjoint(A,splitting = splitting)
+    #computing the SVD of ChiA
+    Uchi,Dchi,Vhchi=np.linalg.svd(ChiA)
+    
+    Vchi=np.conj(Vhchi.T) # to be used for extraction of singular vectors
+    
+    # allocating singular values of ChiA to those of A
+    D=Dchi[::2]
+    # allocating singular vectors of ChiA to those of A
+    UCH = Uchi[:,::2]  
+    VC = Vchi[:,::2]
+    
+    if splitting.lower()=="cd":
+        U1 = UCH[0:N,:]
+        U2 = -np.conjugate(UCH[N:2*N,:])
+        V1 = VC[0:M,:]
+        V2 = -np.conjugate(VC[M:,:])
+    else:
+        U1 = UCH[0:N,:]
+        U2 = UCH[N:,:]
+        V1 = VC[0:M,:]
+        V2 = VC[M:,:]
+    
+    # transpose conjugate back so that A = U@D@Vh in H
+    Vh1=np.conj(V1.T)
+    Vh2=-V2.T
+    
+    D = D[:R]
+    U = complex_to_quaternion(U1[:,:R],U2[:,:R],splitting = splitting)
+    Vh = complex_to_quaternion(Vh1[:R,:],Vh2[:R,:],splitting = splitting)
+    
+    return U,D,Vh
